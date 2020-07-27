@@ -66,9 +66,13 @@ def authenticate_to_bugzilla(api_key):
 
 
 def update_bugs(bug_ids, bzapi):
-    update = bzapi.build_update(internal_whiteboard="Telco:RHCOS Squad:Networking")
     for bug_id in bug_ids:
         try:
+            bug = bzapi.getbug(bug_id)
+            if not bug.internal_whiteboard:
+                update = bzapi.build_update(internal_whiteboard="Telco:RHCOS Squad:Networking")
+            if bug.internal_whiteboard:
+                update = bzapi.build_update(internal_whiteboard="%s Telco:RHCOS Squad:Networking" % bug.internal_whiteboard)
             bzapi.update_bugs([bug_id], update)
         except:
             print("Error updating bug: %s You may not have permission to view" % bug_id)
